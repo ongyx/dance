@@ -69,6 +69,7 @@ export const pkg = (modules: Builder.ParsedModule[]) => ({
       "dance.defaultMode": "helix/normal",
       "dance.modes": {
         "helix/insert": {
+          lineNumbers: "on",
           onLeaveMode: [
             [".selections.save", {
               register: " insert",
@@ -76,10 +77,12 @@ export const pkg = (modules: Builder.ParsedModule[]) => ({
           ],
         },
         "helix/select": {
+          lineNumbers: "on",
           cursorStyle: "block",
           selectionBehavior: "character",
         },
         "helix/normal": {
+          lineNumbers: "relative",
           cursorStyle: "block",
           selectionBehavior: "character",
           decorations: {
@@ -116,6 +119,9 @@ export const pkg = (modules: Builder.ParsedModule[]) => ({
             "m": { command: "dance.seek.enclosing", text: "Goto matching bracket" },
             "a": { command: "dance.openMenu", args: [{ menu: "object", title: "Match around" }], text: "Select around object" },
             "i": { command: "dance.openMenu", args: [{ menu: "object", title: "Match inside", pass: [{ inner: true }] }], text: "Select inside object" },
+            "s": { command: "dance.openMenu", args: [{ menu: "surround", title: "Surround object", },], text: "Surround object", },
+            "r": { command: "dance.openMenu", args: [{ menu: "resurround", title: "Resurround object", },], text: "Resurround object", },
+            "d": { command: "dance.openMenu", args: [{ menu: "unsurround", title: "Unsurround object", },], text: "Unsurround object", },
           },
         },
 
@@ -136,6 +142,45 @@ export const pkg = (modules: Builder.ParsedModule[]) => ({
             "!": { command, text: "custom object desc" },
           }))(),
         },
+
+      surround: {
+        title: "Surround object with...",
+        items: {
+          "()": { command: "dance.run", args: { commands: [{ command: "dance.edit.insert", args: { shift: "extend", text: "(", where: "start", }, }, { command: "dance.edit.insert", args: { shift: "extend", text: ")", where: "end", }, },], }, text: "parenthesis block" },
+          "{}": { command: "dance.run", args: { commands: [{ command: "dance.edit.insert", args: { shift: "extend", text: "{", where: "start", }, }, { command: "dance.edit.insert", args: { shift: "extend", text: "}", where: "end", }, },], }, text: "braces block", },
+          "[]": { command: "dance.run", args: { commands: [{ command: "dance.edit.insert", args: { shift: "extend", text: "[", where: "start", }, }, { command: "dance.edit.insert", args: { shift: "extend", text: "]", where: "end", }, },], }, text: "brackets block", }, "<>": { command: "dance.run", args: { commands: [{ command: "dance.edit.insert", args: { shift: "extend", text: "<", where: "start", }, }, { command: "dance.edit.insert", args: { shift: "extend", text: ">", where: "end", }, },], }, text: "angle block", },
+          '"': { command: "dance.run", args: { commands: [{ command: "dance.edit.insert", args: { shift: "extend", text: '"', where: "start", }, }, { command: "dance.edit.insert", args: { shift: "extend", text: '"', where: "end", }, },], }, text: "double quote string", },
+          "'": { command: "dance.run", args: { commands: [{ command: "dance.edit.insert", args: { shift: "extend", text: "'", where: "start", }, }, { command: "dance.edit.insert", args: { shift: "extend", text: "'", where: "end", }, },], }, text: "single quote string", },
+          "`": { command: "dance.run", args: { commands: [{ command: "dance.edit.insert", args: { shift: "extend", text: "`", where: "start", }, }, { command: "dance.edit.insert", args: { shift: "extend", text: "`", where: "end", }, },], }, text: "grave quote string", },
+        },
+      },
+
+      resurround: {
+        title: "Resurround object...",
+        items: {
+          "()": { command: "dance.run", args: { commands: [{ command: "dance.seek.enclosing", args: { pairs: ["\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "<", ">", '"', '"', "'", "'", "`", "`",], }, }, { command: "dance.edit.insert", args: { text: "(", where: "start", }, }, { command: "dance.edit.insert", args: { text: ")", where: "end", }, }, { command: "dance.selections.reduce.edges", }, { command: "dance.edit.delete", }, { command: "dance.selections.clear.secondary", },], }, text: "parenthesis block", },
+          "{}": { command: "dance.run", args: { commands: [{ command: "dance.seek.enclosing", args: { pairs: ["\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "<", ">", '"', '"', "'", "'", "`", "`",], }, }, { command: "dance.edit.insert", args: { text: "{", where: "start", }, }, { command: "dance.edit.insert", args: { text: "}", where: "end", }, }, { command: "dance.selections.reduce.edges", }, { command: "dance.edit.delete", }, { command: "dance.selections.clear.secondary", },], }, text: "braces block", },
+          "[]": { command: "dance.run", args: { commands: [{ command: "dance.seek.enclosing", args: { pairs: ["\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "<", ">", '"', '"', "'", "'", "`", "`",], }, }, { command: "dance.edit.insert", args: { text: "[", where: "start", }, }, { command: "dance.edit.insert", args: { text: "]", where: "end", }, }, { command: "dance.selections.reduce.edges", }, { command: "dance.edit.delete", }, { command: "dance.selections.clear.secondary", },], }, text: "brackets block", },
+          "<>": { command: "dance.run", args: { commands: [{ command: "dance.seek.enclosing", args: { pairs: ["\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "<", ">", '"', '"', "'", "'", "`", "`",], }, }, { command: "dance.edit.insert", args: { text: "<", where: "start", }, }, { command: "dance.edit.insert", args: { text: ">", where: "end", }, }, { command: "dance.selections.reduce.edges", }, { command: "dance.edit.delete", }, { command: "dance.selections.clear.secondary", },], }, text: "angle block", },
+          '"': { command: "dance.run", args: { commands: [{ command: "dance.seek.enclosing", args: { pairs: ["\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "<", ">", '"', '"', "'", "'", "`", "`",], }, }, { command: "dance.edit.insert", args: { text: '"', where: "start", }, }, { command: "dance.edit.insert", args: { text: '"', where: "end", }, }, { command: "dance.selections.reduce.edges", }, { command: "dance.edit.delete", }, { command: "dance.selections.clear.secondary", },], }, text: "double quote string", },
+          "'": { command: "dance.run", args: { commands: [{ command: "dance.seek.enclosing", args: { pairs: ["\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "<", ">", '"', '"', "'", "'", "`", "`",], }, }, { command: "dance.edit.insert", args: { text: "'", where: "start", }, }, { command: "dance.edit.insert", args: { text: "'", where: "end", }, }, { command: "dance.selections.reduce.edges", }, { command: "dance.edit.delete", }, { command: "dance.selections.clear.secondary", },], }, text: "single quote string", },
+          "`": { command: "dance.run", args: { commands: [{ command: "dance.seek.enclosing", args: { pairs: ["\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "<", ">", '"', '"', "'", "'", "`", "`",], }, }, { command: "dance.edit.insert", args: { text: "`", where: "start", }, }, { command: "dance.edit.insert", args: { text: "`", where: "end", }, }, { command: "dance.selections.reduce.edges", }, { command: "dance.edit.delete", }, { command: "dance.selections.clear.secondary", },], }, text: "grave quote string", },
+        },
+      },
+
+      unsurround: {
+        title: "Unsurround object...",
+        items: {
+          "m": { command: "dance.run", args: { commands: [{ command: "dance.seek.enclosing", }, { command: "dance.selections.reduce.edges", }, { command: "dance.edit.delete", }, { command: "dance.selections.clear.secondary", },], }, text: "enclosing pair", },
+          "()": { command: "dance.run", args: { commands: [{ command: "dance.seek.object", args: [{ input: "\\((?#inner)\\)", },], }, { command: "dance.selections.reduce.edges", }, { command: "dance.edit.delete", }, { command: "dance.selections.clear.secondary", },], }, text: "parenthesis block", },
+          "{}": { command: "dance.run", args: { commands: [{ command: "dance.seek.object", args: [{ input: "\\{(?#inner)\\}", },], }, { command: "dance.selections.reduce.edges", }, { command: "dance.edit.delete", }, { command: "dance.selections.clear.secondary", },], }, text: "braces block", },
+          "[]": { command: "dance.run", args: { commands: [{ command: "dance.seek.object", args: [{ input: "\\[(?#inner)\\]", },], }, { command: "dance.selections.reduce.edges", }, { command: "dance.edit.delete", }, { command: "dance.selections.clear.secondary", },], }, text: "brackets block", },
+          "<>": { command: "dance.run", args: { commands: [{ command: "dance.seek.object", args: [{ input: "<(?#inner)>", },], }, { command: "dance.selections.reduce.edges", }, { command: "dance.edit.delete", }, { command: "dance.selections.clear.secondary", },], }, text: "angle block", },
+          '"': { command: "dance.run", args: { commands: [{ command: "dance.seek.object", args: [{ input: '(?#noescape)"(?#inner)(?#noescape)"', },], }, { command: "dance.selections.reduce.edges", }, { command: "dance.edit.delete", }, { command: "dance.selections.clear.secondary", },], }, text: "double quote string", },
+          "'": { command: "dance.run", args: { commands: [{ command: "dance.seek.object", args: [{ input: "(?#noescape)'(?#inner)(?#noescape)'", },], }, { command: "dance.selections.reduce.edges", }, { command: "dance.edit.delete", }, { command: "dance.selections.clear.secondary", },], }, text: "single quote string", },
+          "`": { command: "dance.run", args: { commands: [{ command: "dance.seek.object", args: [{ input: "(?#noescape)`(?#inner)(?#noescape)`", },], }, { command: "dance.selections.reduce.edges", }, { command: "dance.edit.delete", }, { command: "dance.selections.clear.secondary", },], }, text: "grave quote string", },
+        },
+      },
 
         view: {
           "title": "View",
