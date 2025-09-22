@@ -1,5 +1,5 @@
 import assert from "assert";
-import G      from "glob";
+import * as G from "glob";
 import * as fs   from "fs/promises";
 import * as path from "path";
 
@@ -328,9 +328,7 @@ export const specialCharacterRegExp = /[~!@#$%^&*()+{}|:"<>?]|(?<!NumPad)_/g;
  * Async wrapper around the `glob` package.
  */
 export function glob(pattern: string, options: { ignore?: string, cwd: string }) {
-  return new Promise<string[]>((resolve, reject) => {
-    G(pattern, options, (err, matches) => err ? reject(err) : resolve(matches));
-  });
+  return G.glob(pattern, options);
 }
 
 /**
